@@ -1,0 +1,114 @@
+    //Downloading Zip Folder
+    console.log("Début du Téléchargement");
+    var file = fs.createWriteStream("data1.zip");
+
+    var request = https.get("https://files.data.gouv.fr/insee-sirene/StockEtablissementLiensSuccession_utf8.zip", function(response) {
+    response.pipe(file);
+  
+      file.on("finish", () => {
+        file.close();
+        console.log("Téléchargement du fichier fini");
+      });
+    });
+
+
+
+  //Unzip function
+  //fs.createReadStream(path.join(__dirname,'../data1.zip')).pipe(unzip.Extract({ path: path.join(__dirname,'..') }));
+
+  fs.createReadStream(path.join(__dirname,'/data1.zip'))
+  .pipe(unzip.Parse())
+  
+  .on('entry', function (entry) {
+    var fileName = entry.path;
+    var type = entry.type; // 'Directory' or 'File'
+    var size = entry.size;
+    entry.pipe(fs.createWriteStream(path.join(__dirname,'/data1.csv')));
+    console.log("Début de la décompression")})
+
+  .on('end', function () {
+      console.log("Décompression Terminé")})
+
+  //Calcul Data
+  let total = 0; 
+  let transfert_true = 0 ;
+
+
+  fs.createReadStream(path.join(__dirname,'/data1.csv')).pipe(csv.parse({
+    delimiter:',',
+    columns: true,
+  }))
+  .on('data', (data) => {
+    total++;
+    console.log('total est de ' + total);
+    if( data.transfertSiege === 'true' ){
+      transfert_true++;
+      console.log('transfert_true incrémenté, maintenant de ' + transfert_true);
+    }})
+    .on('end', () => {
+    console.log('total est de ' + total);
+    let pourcentage = (transfert_true*100)/to8tal;
+    console.log('Le pourcentage est de : ' + pourcentage);
+    });
+
+
+
+
+
+
+
+
+  
+  let decompression = new Promise ((resolve) => {
+    fs.createReadStream(path.join(__dirname,'/data1.zip'))
+    .pipe(unzip.Parse())
+    
+    .on('entry', function (entry) {
+      var fileName = entry.path;
+      var type = entry.type; // 'Directory' or 'File'
+      var size = entry.size;
+      entry.pipe(fs.createWriteStream(path.join(__dirname,'/data1.csv')));
+      console.log("Début de la décompression")})
+  
+    .on('end', function () {
+        })
+  })
+    if(fs.existsSync("data1.csv")){
+      resolve('');
+      console.log("Décompression Terminé");
+    }
+
+
+
+
+ 
+
+     //Downloading Zip Folder
+  console.log("A")
+
+  function telechargement(){
+    console.log("B")
+    return new Promise((resolve, reject) => {
+      var file = fs.createWriteStream("data1.zip");
+      var request = https.get("https://files.data.gouv.fr/insee-sirene/StockEtablissementLiensSuccession_utf8.zip", function(response) {
+      response.pipe(file);
+      console.log("Début du Téléchargement")
+        file.on("finish", () => {file.close();
+        if (fs.existsSync("data1.zip")){
+        resolve('');
+        }else{
+          reject('')
+        }
+        });
+     });
+    })
+  }
+
+  async function doWork(){
+    try{
+      const etape1 = await telechargement('');
+      console.log("Téléchargement du fichier fini");
+    }catch(err){
+      console.log("Erreur");
+    }
+  }
